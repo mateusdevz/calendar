@@ -11,14 +11,23 @@ export class AppComponent implements OnInit {
 
   calendar: Day[][] = [];
   days = 0;
+  currentMonth = '';
 
   ngOnInit(): void {
     this.calendar = this.generateCalendar()
+    this.days = Number(localStorage.getItem('day'));
+    if(this.days) {
+      this.stampDays();
+    }
   }
 
   onChange(event: any) {
     this.days = Number(event.target.value);
+    this.saveOnStorage(this.days);
+    this.stampDays();
+  }
 
+  stampDays(): void {
     for(let i = 0; i < this.calendar.length; i++) {
       var row = this.calendar[i];
       for(let j = 0; j < row.length; j++) {
@@ -33,9 +42,9 @@ export class AppComponent implements OnInit {
   }
 
   generateCalendar(): any {
-    // Configurações
-    const year = 2025;
-    const month = 1; // Janeiro (1 = Janeiro)
+    const year = dayjs().year();
+    const month = dayjs().month() + 1;
+    this.currentMonth = dayjs().format('MMMM');
 
     // Obter o número de dias no mês
     const daysInMonth = dayjs(`${year}-${month}-01`).daysInMonth();
@@ -56,8 +65,11 @@ export class AppComponent implements OnInit {
       }
     }
 
-    console.log(calendar);
     return calendar;
+  }
+
+  saveOnStorage(day: number): void {
+    localStorage.setItem('day', JSON.stringify(day));
   }
 }
 

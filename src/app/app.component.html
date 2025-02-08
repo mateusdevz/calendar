@@ -1,4 +1,4 @@
-<div class="form-floating">
+<div *ngIf="!days" class="form-floating">
   <div class="form-floating">
     <select class="form-select" id="floatingSelect" (change)="onChange($event)">
       <option selected>Selecione</option>
@@ -11,6 +11,13 @@
 
 
 <div class="container" *ngIf="days">
+  <div class="container-buttons">
+    <button>mês anterior</button>
+    <button>próximo mês</button>
+  </div>
+  <span>
+    {{currentMonth}}
+  </span>
   <div class="calendar">
     <div class="calendar__rows" *ngFor="let row of calendar">
       <div class="calendar__cols" *ngFor="let col of row">
