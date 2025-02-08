@@ -1,0 +1,40 @@
+.calendar {
+    display: flex;
+    // align-items: center;
+    // justify-content: center;
+    flex-flow: column;
+
+    &__rows {
+        display: flex;
+    }
+
+    &__cols {
+        width: 100%;
+    }
+
+    &__day {
+        width: 100%;
+        height: 100px;
+        border: 1px solid #f3f3f7;
+        padding: 10px 0 0 10px;
+
+        &--to-work {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+        }
+    }
+
+    &__legend {
+        margin-top: 30px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .calendar {
+        &__rows {
+            flex-wrap: wrap;
+        }
+    }
+}
