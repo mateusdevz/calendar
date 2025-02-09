@@ -12,8 +12,8 @@
 
 <div class="container" *ngIf="days">
   <div class="container-buttons">
-    <button>mês anterior</button>
-    <button>próximo mês</button>
+    <button (click)="prevMonth()">mês anterior</button>
+    <button (click)="nextMonth()">próximo mês</button>
   </div>
   <span>
     {{currentMonth}}

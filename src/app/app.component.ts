@@ -11,8 +11,11 @@ export class AppComponent implements OnInit {
 
   calendar: Day[][] = [];
   days = 0;
-  currentMonth = '';
+  currentMonth = dayjs().format('MMMM');  
 
+  year = dayjs().year();
+  month = dayjs().month() + 1;
+ 
   ngOnInit(): void {
     this.calendar = this.generateCalendar()
     this.days = Number(localStorage.getItem('day'));
@@ -25,7 +28,7 @@ export class AppComponent implements OnInit {
     this.days = Number(event.target.value);
     this.saveOnStorage(this.days);
     this.stampDays();
-  }
+  } 
 
   stampDays(): void {
     for(let i = 0; i < this.calendar.length; i++) {
@@ -41,13 +44,31 @@ export class AppComponent implements OnInit {
     }
   }
 
-  generateCalendar(): any {
-    const year = dayjs().year();
-    const month = dayjs().month() + 1;
-    this.currentMonth = dayjs().format('MMMM');
+  nextMonth() {
+    this.calendar = this.generateCalendar(1);
+    this.stampDays();
+  }
+
+  prevMonth() {
+    this.calendar = this.generateCalendar(-1);
+    this.stampDays();
+  }
+
+  generateCalendar(isNextOrPrev?: number): any {
+    if(isNextOrPrev && isNextOrPrev > 0) {
+      this.month = this.month + 1;
+      this.currentMonth = dayjs().month(this.month - 1).format('MMMM');
+      
+    }
+
+    if(isNextOrPrev && isNextOrPrev < 0) {
+      this.month = this.month - 1;
+      this.currentMonth = dayjs().month(this.month - 1).format('MMMM');
+    }
+
 
     // Obter o número de dias no mês
-    const daysInMonth = dayjs(`${year}-${month}-01`).daysInMonth();
+    const daysInMonth = dayjs(`${this.year}-${this.month}-01`).daysInMonth();
 
     // Inicializar a matriz
     const calendar = Array(6).fill(0).map(() => Array(7).fill({day: 0, selected: false})); // 6 semanas, 7 dias
@@ -55,7 +76,7 @@ export class AppComponent implements OnInit {
     // Preencher a matriz
     let week = 0;
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = dayjs(`${year}-${month}-${day}`);
+      const date = dayjs(`${this.year}-${this.month}-${day}`);
       const dayOfWeek = date.day(); // 0 = Domingo, 6 = Sábado
       calendar[week][dayOfWeek] = {day, selected: false};
 
