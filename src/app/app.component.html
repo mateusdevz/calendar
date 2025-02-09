@@ -14,6 +14,7 @@
   <div class="container-buttons">
     <button (click)="prevMonth()">mês anterior</button>
     <button (click)="nextMonth()">próximo mês</button>
+    <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Definir dia de folga</button>
   </div>
   <span>
     {{currentMonth}}
@@ -25,6 +26,7 @@
           {{col.day}}
   
           <div class="calendar__day--to-work" *ngIf="col.selected"></div>
+          <div class="calendar__day--to-rest" *ngIf="col.isRestDay"></div>
         </div>
       </div>
     </div>
@@ -33,5 +35,33 @@
   <div class="calendar__legend">
     <div class="calendar__day--to-work"></div>
     <span>Dias de trabalho</span>
+    <br>
+    <div class="calendar__day--to-rest"></div>
+    <span>Dias de folga</span>
+  </div>
+</div>
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Defina os dias de folga</h1>
+        <button type="button" #closeModal class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="flex">
+          <label for="first">Primeira folga do mês</label>
+          <input class="input-dias" id="first" type="text" #firstDay>
+        </div>
+        <div class="flex">
+          <label for="second">Segunda folga do mês</label>
+          <input class="input-dias" id="second" type="text" #secondDay>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="defineRest()"  >Definir</button>
+      </div>
+    </div>
   </div>
 </div>

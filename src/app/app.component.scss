@@ -24,11 +24,23 @@
             background-color: red;
             border-radius: 50%;
         }
+
+        &--to-rest {
+            width: 25px;
+            height: 25px;
+            background-color: #9b1fe8;
+            border-radius: 50%;
+        }
     }
 
     &__legend {
         margin-top: 30px;
     }
+}
+
+.input-dias {
+    border-bottom: 1px solid #000;
+    margin-left: 5px;
 }
 
 @media screen and (max-width: 768px) {

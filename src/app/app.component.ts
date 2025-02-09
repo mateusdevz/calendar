@@ -1,5 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as dayjs from 'dayjs';
+import * as utc from "dayjs/plugin/utc";
+import * as timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 @Component({
   selector: 'app-root',
@@ -7,11 +12,20 @@ import * as dayjs from 'dayjs';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+
+  @ViewChild('firstDay', {static: true}) firstDayInput!: ElementRef;
+  @ViewChild('secondDay', {static: true}) secondDayInput!: ElementRef;
+  @ViewChild('closeModal') closeModal!: ElementRef
+
+
   title = 'calendar';
+  private timezonea = dayjs.tz.guess() || 'America/Sao_Paulo';
 
   calendar: Day[][] = [];
   days = 0;
-  currentMonth = dayjs().format('MMMM');  
+  firstDayRest = 0;
+  secondDayRest = 0;
+  currentMonth = dayjs().tz(this.timezonea).format('MMMM');  
 
   year = dayjs().year();
   month = dayjs().month() + 1;
@@ -19,7 +33,14 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.calendar = this.generateCalendar()
     this.days = Number(localStorage.getItem('day'));
+    this.firstDayRest = Number(localStorage.getItem('primeiroDiaFolga'));
+    this.secondDayRest = Number(localStorage.getItem('segundaDiaFolga'));
     if(this.days) {
+      this.stampDays();
+    }
+
+    if(this.firstDayInput && this.secondDayRest) {
+      this.calendar = this.generateCalendar(undefined, Number(this.firstDayRest), Number(this.secondDayRest));
       this.stampDays();
     }
   }
@@ -45,25 +66,24 @@ export class AppComponent implements OnInit {
   }
 
   nextMonth() {
-    this.calendar = this.generateCalendar(1);
+    this.calendar = this.generateCalendar(1, Number(this.firstDayRest), Number(this.secondDayRest));
     this.stampDays();
   }
 
   prevMonth() {
-    this.calendar = this.generateCalendar(-1);
+    this.calendar = this.generateCalendar(-1, Number(this.firstDayRest), Number(this.secondDayRest));
     this.stampDays();
   }
 
-  generateCalendar(isNextOrPrev?: number): any {
+  generateCalendar(isNextOrPrev?: number, firstRest?: number, secondRest?: number): any {
     if(isNextOrPrev && isNextOrPrev > 0) {
       this.month = this.month + 1;
-      this.currentMonth = dayjs().month(this.month - 1).format('MMMM');
-      
+      this.currentMonth = dayjs().tz(this.timezonea).month(this.month - 1).format('MMMM');      
     }
 
     if(isNextOrPrev && isNextOrPrev < 0) {
       this.month = this.month - 1;
-      this.currentMonth = dayjs().month(this.month - 1).format('MMMM');
+      this.currentMonth = dayjs().tz(this.timezonea).month(this.month - 1).format('MMMM');
     }
 
 
@@ -78,7 +98,7 @@ export class AppComponent implements OnInit {
     for (let day = 1; day <= daysInMonth; day++) {
       const date = dayjs(`${this.year}-${this.month}-${day}`);
       const dayOfWeek = date.day(); // 0 = Domingo, 6 = Sábado
-      calendar[week][dayOfWeek] = {day, selected: false};
+      calendar[week][dayOfWeek] = {day, selected: false, isRestDay: firstRest === day || secondRest === day};
 
       // Avançar para a próxima semana se o dia for sábado
       if (dayOfWeek === 6) {
@@ -92,9 +112,21 @@ export class AppComponent implements OnInit {
   saveOnStorage(day: number): void {
     localStorage.setItem('day', JSON.stringify(day));
   }
+
+  defineRest(): void {
+    this.closeModal.nativeElement.click();
+    const firstRest = this.firstDayInput.nativeElement.value;
+    const secondRest = this.secondDayInput.nativeElement.value
+    localStorage.setItem('primeiroDiaFolga', firstRest);
+    localStorage.setItem('segundaDiaFolga', secondRest);
+
+    this.calendar = this.generateCalendar(undefined, Number(firstRest), Number(secondRest));
+    this.stampDays();
+  }
 }
 
 export interface Day {
   day: number;
   selected: boolean;
+  isRestDay: boolean;
 }
