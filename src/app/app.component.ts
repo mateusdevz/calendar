@@ -23,9 +23,11 @@ export class AppComponent implements OnInit {
 
   calendar: Day[][] = [];
   days = 0;
+  today = Number(dayjs().tz(this.timezonea).format('DD'));
   firstDayRest = 0;
   secondDayRest = 0;
   currentMonth = dayjs().tz(this.timezonea).format('MMMM');  
+  monthCurrentSaved = this.currentMonth;
 
   year = dayjs().year();
   month = dayjs().month() + 1;
@@ -33,13 +35,13 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.calendar = this.generateCalendar()
     this.days = Number(localStorage.getItem('day'));
-    this.firstDayRest = Number(localStorage.getItem('primeiroDiaFolga'));
-    this.secondDayRest = Number(localStorage.getItem('segundaDiaFolga'));
+    this.firstDayRest = Number(JSON.parse(localStorage.getItem('rest') as string).first);
+    this.secondDayRest = Number(JSON.parse(localStorage.getItem('rest') as string).second);
     if(this.days) {
       this.stampDays();
     }
 
-    if(this.firstDayInput && this.secondDayRest) {
+    if(this.firstDayRest && this.secondDayRest) {
       this.calendar = this.generateCalendar(undefined, Number(this.firstDayRest), Number(this.secondDayRest));
       this.stampDays();
     }
@@ -51,16 +53,11 @@ export class AppComponent implements OnInit {
     this.stampDays();
   } 
 
-  stampDays(): void {
+  stampDays(clear?: boolean): void {
     for(let i = 0; i < this.calendar.length; i++) {
       var row = this.calendar[i];
       for(let j = 0; j < row.length; j++) {
-        
-        if(this.days === 2) {
-          this.calendar[i][j].selected = this.calendar[i][j].day % 2 === 0; 
-        } else {
-          this.calendar[i][j].selected = this.calendar[i][j].day % 2 === 1; 
-        }
+        this.calendar[i][j].selected = clear ? false : this.calendar[i][j].day % 2 === (this.days === DiasDeTrabalho.PAR ? 0 : 1); 
       }
     }
   }
@@ -75,10 +72,14 @@ export class AppComponent implements OnInit {
     this.stampDays();
   }
 
+  clearCalendarOnNextOrPrev(): void {
+    this.stampDays(true);
+  }
+
   generateCalendar(isNextOrPrev?: number, firstRest?: number, secondRest?: number): any {
     if(isNextOrPrev && isNextOrPrev > 0) {
       this.month = this.month + 1;
-      this.currentMonth = dayjs().tz(this.timezonea).month(this.month - 1).format('MMMM');      
+      this.currentMonth = dayjs().tz(this.timezonea).month(this.month - 1).format('MMMM');
     }
 
     if(isNextOrPrev && isNextOrPrev < 0) {
@@ -86,6 +87,7 @@ export class AppComponent implements OnInit {
       this.currentMonth = dayjs().tz(this.timezonea).month(this.month - 1).format('MMMM');
     }
 
+    this.handleWorkDayToggle();
 
     // Obter o número de dias no mês
     const daysInMonth = dayjs(`${this.year}-${this.month}-01`).daysInMonth();
@@ -98,7 +100,12 @@ export class AppComponent implements OnInit {
     for (let day = 1; day <= daysInMonth; day++) {
       const date = dayjs(`${this.year}-${this.month}-${day}`);
       const dayOfWeek = date.day(); // 0 = Domingo, 6 = Sábado
-      calendar[week][dayOfWeek] = {day, selected: false, isRestDay: firstRest === day || secondRest === day};
+
+      calendar[week][dayOfWeek] = {day, selected: false }; 
+
+      if(this.currentMonth === this.monthCurrentSaved) {
+        calendar[week][dayOfWeek].isRestDay = firstRest === day || secondRest === day;
+      }
 
       // Avançar para a próxima semana se o dia for sábado
       if (dayOfWeek === 6) {
@@ -109,18 +116,39 @@ export class AppComponent implements OnInit {
     return calendar;
   }
 
+  handleWorkDayToggle() {
+    const prevMonth = this.month - 1;
+    const daysInPrevMonth = dayjs(`${this.year}-${prevMonth}-01`).daysInMonth();
+    if(daysInPrevMonth % 2 === 1 && this.today === 1) {
+      this.days = DiasDeTrabalho.PAR;
+      this.saveOnStorage(this.days);
+    } else if(daysInPrevMonth % 2 === 0 && this.today === 1 && this.days === 2) {
+      this.days =  DiasDeTrabalho.IMPAR;
+      this.saveOnStorage(this.days);
+
+    }
+  
+  }
+
   saveOnStorage(day: number): void {
     localStorage.setItem('day', JSON.stringify(day));
   }
 
   defineRest(): void {
     this.closeModal.nativeElement.click();
-    const firstRest = this.firstDayInput.nativeElement.value;
-    const secondRest = this.secondDayInput.nativeElement.value
-    localStorage.setItem('primeiroDiaFolga', firstRest);
-    localStorage.setItem('segundaDiaFolga', secondRest);
 
-    this.calendar = this.generateCalendar(undefined, Number(firstRest), Number(secondRest));
+    const first = this.firstDayInput.nativeElement.value;
+    const second = this.secondDayInput.nativeElement.value
+
+    const restInfo = {
+      first,
+      second,
+      month: this.currentMonth 
+    };
+
+    localStorage.setItem('rest', JSON.stringify(restInfo));
+
+    this.calendar = this.generateCalendar(undefined, Number(restInfo.first), Number(restInfo.second));
     this.stampDays();
   }
 }
@@ -129,4 +157,9 @@ export interface Day {
   day: number;
   selected: boolean;
   isRestDay: boolean;
+}
+
+export enum DiasDeTrabalho {
+  PAR = 2,
+  IMPAR = 3
 }

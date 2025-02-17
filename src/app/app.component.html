@@ -12,8 +12,8 @@
 
 <div class="container" *ngIf="days">
   <div class="container-buttons">
-    <button (click)="prevMonth()">mês anterior</button>
-    <button (click)="nextMonth()">próximo mês</button>
+    <!-- <button (click)="prevMonth()">mês anterior</button>
+    <button (click)="nextMonth()">próximo mês</button> -->
     <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Definir dia de folga</button>
   </div>
   <span>
@@ -25,7 +25,8 @@
         <div class="calendar__day" *ngIf="col.day !== 0">
           {{col.day}}
   
-          <div class="calendar__day--to-work" *ngIf="col.selected"></div>
+          <div class="calendar__day--to-work" *ngIf="col.selected && !col.isRestDay"></div>
+          <div class="calendar__day--not-to-work" *ngIf="!col.selected"></div>
           <div class="calendar__day--to-rest" *ngIf="col.isRestDay"></div>
         </div>
       </div>
@@ -35,6 +36,9 @@
   <div class="calendar__legend">
     <div class="calendar__day--to-work"></div>
     <span>Dias de trabalho</span>
+    <br>
+    <div class="calendar__day--not-to-work"></div>
+    <span>Dias sem trabalho</span>
     <br>
     <div class="calendar__day--to-rest"></div>
     <span>Dias de folga</span>
