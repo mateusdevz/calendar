@@ -45,6 +45,17 @@
     }
 }
 
+.container {
+    &__diff-next-days {
+        position: relative;
+        top: 20px;
+    }
+
+    &__diff-days {
+        color: red;
+    }
+}
+
 .input-dias {
     border-bottom: 1px solid #000;
     margin-left: 5px;

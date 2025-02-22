@@ -28,9 +28,22 @@ export class AppComponent implements OnInit {
   secondDayRest = 0;
   currentMonth = dayjs().tz(this.timezonea).format('MMMM');  
   monthCurrentSaved = this.currentMonth;
+  diffNextRest = 0;
 
   year = dayjs().year();
   month = dayjs().month() + 1;
+
+  get nextRestDay(): number {
+    if(this.firstDayInput && this.today < this.firstDayRest) {
+      return this.firstDayRest - this.today;
+    }
+
+    if(this.secondDayRest && this.today < this.secondDayRest) {
+      return this.secondDayRest - this.today;
+    }
+
+    return 0;
+  }
  
   ngOnInit(): void {
     this.calendar = this.generateCalendar()
@@ -145,6 +158,9 @@ export class AppComponent implements OnInit {
       second,
       month: this.currentMonth 
     };
+
+    this.firstDayRest = restInfo.first;
+    this.secondDayRest = restInfo.second;
 
     localStorage.setItem('rest', JSON.stringify(restInfo));
 

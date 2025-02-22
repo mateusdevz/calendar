@@ -9,7 +9,6 @@
   </div>
 </div>
 
-
 <div class="container" *ngIf="days">
   <div class="container-buttons">
     <!-- <button (click)="prevMonth()">mês anterior</button>
@@ -17,8 +16,14 @@
     <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Definir dia de folga</button>
   </div>
   <span>
-    {{currentMonth}}
+    Mês atual: {{currentMonth}}
   </span>
+
+  <div class="container__diff-next-days">
+    {{nextRestDay > 1 ? 'Faltam' : 'Falta'}} <span class="container__diff-days">{{nextRestDay}}</span> {{nextRestDay < 2 ? 'dia' : 'dias'}} para a próxima folga!
+  </div>
+
+
   <div class="calendar">
     <div class="calendar__rows" *ngFor="let row of calendar">
       <div class="calendar__cols" *ngFor="let col of row">
@@ -64,7 +69,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="defineRest()"  >Definir</button>
+        <button type="button" class="btn btn-primary" (click)="defineRest()">Definir</button>
       </div>
     </div>
   </div>
