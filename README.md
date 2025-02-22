@@ -1,5 +1,9 @@
 # Calendar
 
+Feito em Angular.
+Deployado na Vercel: https://calendar-topaz-theta.vercel.app/
+
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.0.0.
 
 ## Development server
